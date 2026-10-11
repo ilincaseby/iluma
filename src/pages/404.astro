@@ -1,0 +1,21 @@
+---
+/** 404 — a mirror with nothing in it. */
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Button from '../components/ui/Button.astro';
+import { url } from '../lib/utils';
+---
+
+<BaseLayout title="Pagina nu a fost găsită" noindex>
+  <section class="tone-paper linen grid min-h-dvh place-items-center bg-surface px-6 pt-24 text-center text-fg">
+    <div>
+      <div class="mx-auto grid h-72 w-48 place-items-center overflow-hidden rounded-t-full border-[8px] border-wood-400 bg-paper-200 shadow-2xl" data-reveal="zoom" data-reveal-immediate>
+        <span class="font-display text-7xl font-light text-espresso-900/30 italic">404</span>
+      </div>
+      <h1 class="mt-10 font-display text-4xl font-light md:text-5xl" data-reveal="up" data-reveal-immediate style="--reveal-delay:200ms">Oglinda asta nu reflectă nimic</h1>
+      <p class="mx-auto mt-4 max-w-md text-muted" data-reveal="up" data-reveal-immediate style="--reveal-delay:350ms">Pagina căutată nu există. Hai înapoi acasă.</p>
+      <div class="mt-8" data-reveal="up" data-reveal-immediate style="--reveal-delay:500ms">
+        <Button href={url('/')} icon="arrow-right">Înapoi acasă</Button>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

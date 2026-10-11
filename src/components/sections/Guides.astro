@@ -1,0 +1,58 @@
+---
+/**
+ * GUIDES — "Înainte să cumperi…" cards styled like the paper sheet held in
+ * their Instagram posts. Each card is an arched "mirror"; clicking it opens
+ * /ghiduri/<slug> with a zoom-into-the-mirror page transition.
+ */
+import type { SectionCopy, Tone } from '../../config/sections';
+import { guides } from '../../data/guides';
+import { url } from '../../lib/utils';
+import Section from '../ui/Section.astro';
+import SectionHeading from '../ui/SectionHeading.astro';
+import Icon from '../ui/Icon.astro';
+
+interface Props {
+  id?: string;
+  tone?: Tone;
+  copy?: SectionCopy;
+}
+const { id, tone = 'paper', copy = {} } = Astro.props;
+---
+
+<Section id={id} tone={tone} class="linen">
+  <SectionHeading eyebrow={copy.eyebrow} title={copy.title ?? 'Ghiduri'} accent={copy.accent} intro={copy.intro} />
+
+  <div class="grid grid-cols-1 gap-6 [perspective:1400px] sm:grid-cols-2 lg:grid-cols-3" data-stagger="80">
+    {
+      guides.map((g) => (
+        <div data-reveal="up">
+          <a
+            href={url(`/ghiduri/${g.slug}`)}
+            class="group relative block h-full"
+            data-tilt="6"
+            data-cursor-label="Citește"
+            style={`--tint:${g.tint}`}
+            transition:name={`guide-${g.slug}`}
+          >
+            <div class="relative flex aspect-[4/5] flex-col items-center justify-center overflow-hidden rounded-t-full rounded-b-[1.5rem] bg-(--tint) p-8 text-center shadow-[0_30px_60px_-35px_rgba(42,32,26,.5)]">
+              <span class="sheen opacity-60" aria-hidden="true" />
+              {/* The "paper sheet" */}
+              <div class="tilt-pop w-[78%] rounded-sm bg-paper-50 px-6 py-10 shadow-[0_18px_40px_-18px_rgba(42,32,26,.45)] transition-transform duration-700 ease-(--ease-out-expo) group-hover:-translate-y-2 group-hover:rotate-[-1.5deg]">
+                <p class="font-display text-[0.7rem] tracking-[0.18em] text-espresso-900/70 uppercase">Înainte să cumperi…</p>
+                <h3 class="title-caps mt-5 text-[1.05rem] leading-snug text-espresso-900">{g.title}</h3>
+                <p class="mt-5 text-[0.58rem] leading-relaxed tracking-[0.16em] text-espresso-900/60 uppercase">Ce merită să verifici înainte de a lua o decizie</p>
+              </div>
+              <Icon name={g.icon} size={22} class="absolute bottom-7 text-espresso-900/40" strokeWidth={1.3} />
+            </div>
+            <div class="mt-5 flex items-center justify-between px-1">
+              <span class="font-display text-xl">{g.title}</span>
+              <span class="grid size-10 place-items-center rounded-full border border-line transition-all duration-500 group-hover:bg-espresso-900 group-hover:text-paper-50">
+                <Icon name="arrow-up-right" size={16} />
+              </span>
+            </div>
+          </a>
+        </div>
+      ))
+    }
+  </div>
+</Section>

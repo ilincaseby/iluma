@@ -1,0 +1,75 @@
+---
+/**
+ * CONTACT — big CTA. Phone / email appear automatically once filled in
+ * src/config/site.ts; until then the main action is an Instagram DM.
+ */
+import { Image } from 'astro:assets';
+import type { SectionCopy, Tone } from '../../config/sections';
+import { site } from '../../config/site';
+import { img } from '../../lib/images';
+import { contactHref, contactIsExternal, contactLabel, whatsappHref } from '../../lib/utils';
+import Section from '../ui/Section.astro';
+import SectionHeading from '../ui/SectionHeading.astro';
+import Button from '../ui/Button.astro';
+import Icon from '../ui/Icon.astro';
+
+interface Props {
+  id?: string;
+  tone?: Tone;
+  copy?: SectionCopy;
+}
+const { id, tone = 'paper', copy = {} } = Astro.props;
+
+const rows = [
+  { icon: 'map-pin', label: 'Studio', value: site.city, href: null as string | null },
+  { icon: 'compass', label: 'Zonă', value: site.area, href: null as string | null },
+  ...(site.phone ? [{ icon: 'phone', label: 'Telefon', value: site.phone.display, href: `tel:${site.phone.e164}` }] : []),
+  ...(whatsappHref() ? [{ icon: 'whatsapp', label: 'WhatsApp', value: 'Scrie-i Cristinei', href: whatsappHref() }] : []),
+  ...(site.email ? [{ icon: 'mail', label: 'Email', value: site.email, href: `mailto:${site.email}` }] : []),
+  { icon: 'instagram', label: 'Instagram', value: site.instagram.handle, href: site.instagram.url },
+];
+---
+
+<Section id={id} tone={tone}>
+  <div class="grid grid-cols-1 items-center gap-14 lg:grid-cols-12">
+    <div class="lg:col-span-6">
+      <SectionHeading eyebrow={copy.eyebrow} title={copy.title ?? 'Contact'} accent={copy.accent} class="!mb-10" />
+      <p class="max-w-lg text-lg leading-relaxed text-muted" data-reveal="up">
+        Fie că amenajezi prima casă, un open space sau doar vrei să alegi corect o piesă, începem cu o discuție simplă despre spațiul tău. Sună-o pe {site.designer.name} sau scrie-i pe WhatsApp.
+      </p>
+      <ul class="mt-10 divide-y divide-line border-y border-line" data-stagger="70">
+        {
+          rows.map((r) => (
+            <li data-reveal="up">
+              {r.href ? (
+                <a href={r.href} {...(r.href.startsWith('http') ? { target: '_blank', rel: 'noopener noreferrer' } : {})} class="group flex items-center gap-5 py-5">
+                  <Icon name={r.icon} size={19} class="text-terra-500" />
+                  <span class="w-24 shrink-0 text-[0.65rem] tracking-[0.25em] text-muted uppercase">{r.label}</span>
+                  <span class="font-display text-xl">{r.value}</span>
+                  <Icon name="arrow-up-right" size={17} class="ml-auto text-muted transition-transform duration-500 group-hover:translate-x-1 group-hover:-translate-y-1" />
+                </a>
+              ) : (
+                <div class="flex items-center gap-5 py-5">
+                  <Icon name={r.icon} size={19} class="text-terra-500" />
+                  <span class="w-24 shrink-0 text-[0.65rem] tracking-[0.25em] text-muted uppercase">{r.label}</span>
+                  <span class="font-display text-xl">{r.value}</span>
+                </div>
+              )}
+            </li>
+          ))
+        }
+      </ul>
+      <div class="mt-10 flex flex-wrap gap-3" data-reveal="up">
+        <Button href={contactHref()} external={contactIsExternal()} size="lg" icon="phone" iconLeft>{contactLabel()}</Button>
+        {whatsappHref() && <Button href={whatsappHref()!} external variant="outline" size="lg" icon="whatsapp" iconLeft>WhatsApp</Button>}
+      </div>
+    </div>
+
+    <!-- Arched image -->
+    <figure class="relative mx-auto w-full max-w-md lg:col-span-6" data-reveal="clip">
+      <div class="overflow-hidden rounded-t-full border-[10px] border-wood-400 shadow-2xl">
+        <Image src={img('rooms/room-open-space.jpg')} alt="Open space luminos: living și bucătărie, Iluma Studio Design" widths={[480, 800]} sizes="(min-width:1024px) 28rem, 90vw" class="aspect-[3/4] w-full object-cover" />
+      </div>
+    </figure>
+  </div>
+</Section>

@@ -1,0 +1,20 @@
+---
+/**
+ * <Logo /> — ILUMA wordmark (wide-tracked serif + "STUDIO DESIGN"),
+ * recreated from their branding. `light` = for dark backgrounds.
+ */
+import { url } from '../../lib/utils';
+
+interface Props {
+  class?: string;
+  light?: boolean;
+}
+const { class: className, light = false } = Astro.props;
+---
+
+<a href={url('/')} class:list={['group inline-flex flex-col items-center leading-none', className]} aria-label="Iluma Studio Design — acasă">
+  <span class:list={['font-display text-[1.65rem] font-medium tracking-[0.42em] transition-[letter-spacing] duration-700 ease-(--ease-out-expo) group-hover:tracking-[0.5em]', light ? 'text-paper-50' : 'text-espresso-900']}>
+    ILUMA
+  </span>
+  <span class:list={['mt-1 text-[0.5rem] font-semibold tracking-[0.5em]', light ? 'text-paper-200' : 'text-stone-600']}>STUDIO DESIGN</span>
+</a>

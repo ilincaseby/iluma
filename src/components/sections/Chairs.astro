@@ -1,0 +1,72 @@
+---
+/**
+ * CHAIRS — "Iconic chairs": a 3D coverflow carousel.
+ * Drag / swipe / arrows / keyboard. The centered chair faces you; the others
+ * rotate away in 3D (src/scripts/modules/coverflow.ts writes --offset per card).
+ */
+import { Image } from 'astro:assets';
+import type { SectionCopy, Tone } from '../../config/sections';
+import { chairs } from '../../data/chairs';
+import { img } from '../../lib/images';
+import Section from '../ui/Section.astro';
+import SectionHeading from '../ui/SectionHeading.astro';
+import Icon from '../ui/Icon.astro';
+
+interface Props {
+  id?: string;
+  tone?: Tone;
+  copy?: SectionCopy;
+}
+const { id, tone = 'paper', copy = {} } = Astro.props;
+---
+
+<Section id={id} tone={tone} contained={false} class="overflow-hidden">
+  <div class="container-x">
+    <SectionHeading eyebrow={copy.eyebrow} title={copy.title ?? ''} accent={copy.accent} intro={copy.intro}>
+      <div class="flex gap-3">
+        <button type="button" class="grid size-12 place-items-center rounded-full border border-line transition-colors hover:bg-espresso-900 hover:text-paper-50" aria-label="Scaunul anterior" data-cf-prev>
+          <Icon name="arrow-left" size={18} />
+        </button>
+        <button type="button" class="grid size-12 place-items-center rounded-full border border-line transition-colors hover:bg-espresso-900 hover:text-paper-50" aria-label="Scaunul următor" data-cf-next>
+          <Icon name="arrow-right" size={18} />
+        </button>
+      </div>
+    </SectionHeading>
+  </div>
+
+  <div class="relative" data-coverflow tabindex="0" aria-roledescription="carusel" aria-label="Scaune iconice">
+    <div class="relative mx-auto h-[30rem] max-w-[100vw] cursor-grab touch-pan-y [perspective:1600px] select-none active:cursor-grabbing md:h-[34rem]" data-cf-stage>
+      {
+        chairs.map((c, i) => (
+          <article
+            class="absolute top-0 left-1/2 w-[17rem] -ml-[8.5rem] transition-[transform,opacity,filter] duration-700 ease-(--ease-out-expo) md:w-[20rem] md:-ml-[10rem]"
+            style="transform-style:preserve-3d"
+            data-cf-card={i}
+            aria-label={`${c.name}, ${c.designer}, ${c.year}`}
+          >
+            <div class="overflow-hidden rounded-[1.5rem] bg-paper-50 shadow-[0_30px_60px_-30px_rgba(42,32,26,.45)]">
+              <Image src={img(c.image)} alt={c.name} widths={[320, 520]} sizes="20rem" class="aspect-[4/5] w-full object-cover" draggable="false" />
+            </div>
+            <div class="mt-5 text-center opacity-0 transition-opacity duration-500 [[data-active]_&]:opacity-100">
+              <p class="title-caps text-[0.82rem]">{c.name}</p>
+              <p class="mt-1 text-[0.68rem] tracking-[0.2em] text-muted uppercase">{c.designer} · {c.year}</p>
+            </div>
+          </article>
+        ))
+      }
+    </div>
+
+    <!-- Story of the active chair -->
+    <div class="container-x">
+      <div class="relative mx-auto mt-4 min-h-[6rem] max-w-2xl text-center">
+        {
+          chairs.map((c, i) => (
+            <p class="absolute inset-x-0 top-0 leading-relaxed text-muted opacity-0 transition-opacity duration-500 data-[active]:opacity-100" data-cf-text={i}>
+              {c.text}
+            </p>
+          ))
+        }
+      </div>
+    </div>
+  </div>
+</Section>

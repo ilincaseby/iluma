@@ -1,0 +1,142 @@
+---
+/**
+ * GUIDE PAGE — /ghiduri/<slug>, one per entry in src/data/guides.ts.
+ * ----------------------------------------------------------------------------
+ * Opens with an arched "mirror" that expands to full-screen as you scroll
+ * (same mirror.ts module as the homepage hero), then each tip is a big
+ * numbered card that turns in 3D as it enters (data-turn → turn.ts).
+ * Next / previous guide at the bottom = keep "walking" through the mirrors.
+ */
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { guides, type Guide } from '../../data/guides';
+import { url, contactHref, contactIsExternal } from '../../lib/utils';
+import { site } from '../../config/site';
+import SplitText from '../../components/ui/SplitText.astro';
+import Button from '../../components/ui/Button.astro';
+import Icon from '../../components/ui/Icon.astro';
+
+export function getStaticPaths() {
+  return guides.map((guide, i) => ({
+    params: { slug: guide.slug },
+    props: { guide, next: guides[(i + 1) % guides.length], prev: guides[(i - 1 + guides.length) % guides.length] },
+  }));
+}
+
+interface Props {
+  guide: Guide;
+  next: Guide;
+  prev: Guide;
+}
+const { guide, next, prev } = Astro.props;
+---
+
+<BaseLayout title={`Înainte să cumperi: ${guide.title}`} description={guide.intro}>
+  <!-- Mirror intro (pinned) -->
+  <section class="tone-paper relative bg-surface text-fg" data-mirror style="height: 200vh">
+    <div class="mirror-scene sticky top-0 grid h-dvh place-items-center overflow-hidden [perspective:1000px]">
+      <div class="mirror-wall linen absolute inset-0 bg-paper-100" aria-hidden="true"></div>
+      <div
+        class="mirror-arch relative grid h-[min(70vh,40rem)] w-[min(80vw,28rem)] place-items-center overflow-hidden border-[10px] border-wood-400 shadow-[0_40px_80px_-30px_rgba(42,32,26,.55)]"
+        style={`background:${guide.tint}`}
+        transition:name={`guide-${guide.slug}`}
+      >
+        <span class="sheen" aria-hidden="true"></span>
+        <div class="mirror-glass w-[78%] rounded-sm bg-paper-50 px-7 py-12 text-center shadow-[0_18px_40px_-18px_rgba(42,32,26,.45)]">
+          <p class="font-display text-xs tracking-[0.2em] text-espresso-900/70 uppercase">Înainte să cumperi…</p>
+          <h1 class="title-caps mt-6 text-xl leading-snug text-espresso-900">{guide.title}</h1>
+          <p class="mt-6 text-[0.6rem] leading-relaxed tracking-[0.16em] text-espresso-900/60 uppercase">Ce merită să verifici înainte de a lua o decizie</p>
+        </div>
+      </div>
+      <a href={url('/#ghiduri')} class="mirror-fade absolute top-28 left-6 inline-flex items-center gap-2 text-xs font-semibold tracking-[0.25em] text-muted uppercase md:left-10">
+        <Icon name="arrow-left" size={14} /> Toate ghidurile
+      </a>
+      <p class="mirror-fade absolute bottom-8 text-[0.6rem] font-semibold tracking-[0.3em] text-muted uppercase">Derulează</p>
+      <div class="mirror-flash pointer-events-none absolute inset-0 bg-paper-50" aria-hidden="true"></div>
+    </div>
+  </section>
+
+  <!-- Intro -->
+  <section class="tone-paper section-y relative -mt-[1px] bg-paper-50 text-fg">
+    <div class="container-x max-w-4xl text-center">
+      <SplitText text={guide.intro} class="font-display text-[clamp(1.6rem,3.2vw,2.6rem)] leading-snug font-light" />
+    </div>
+  </section>
+
+  <!-- Steps: 3D turning cards -->
+  <section class="tone-stone section-y relative bg-surface text-fg">
+    <div class="container-x space-y-6 [perspective:1600px]">
+      {
+        guide.steps.map((s, i) => (
+          <article
+            class="grid origin-left grid-cols-1 gap-6 rounded-[1.75rem] border border-line bg-card p-8 shadow-[0_30px_60px_-40px_rgba(42,32,26,.4)] md:grid-cols-[10rem_1fr] md:p-12"
+            data-turn
+          >
+            <span class="font-display text-7xl leading-none font-light text-terra-500 italic">{String(i + 1).padStart(2, '0')}</span>
+            <div>
+              <h2 class="title-caps flex items-center gap-3 text-[1rem]">
+                <Icon name="check" size={18} class="text-olive-500" strokeWidth={2.2} /> {s.title}
+              </h2>
+              <p class="mt-5 max-w-2xl text-lg leading-relaxed text-muted">{s.text}</p>
+            </div>
+          </article>
+        ))
+      }
+    </div>
+  </section>
+
+  <!-- Checklist -->
+  <section class="tone-dark section-y relative bg-surface text-fg">
+    <div class="container-x grid grid-cols-1 gap-12 md:grid-cols-2">
+      <div>
+        <p class="title-caps text-[0.8rem] text-wood-300" data-reveal="fade">Checklist</p>
+        <ul class="mt-8 space-y-4" data-stagger="80">
+          {
+            guide.checklist.map((c) => (
+              <li class="flex items-center gap-4 border-b border-line pb-4 font-display text-2xl font-light" data-reveal="left">
+                <span class="grid size-8 shrink-0 place-items-center rounded-full bg-wood-300 text-espresso-900">
+                  <Icon name="check" size={15} strokeWidth={2.4} />
+                </span>
+                {c}
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+      <div class="flex flex-col justify-between gap-10">
+        <p class="font-display text-[clamp(1.8rem,3.4vw,3rem)] leading-tight font-light italic" data-reveal="up">„{guide.outro}”</p>
+        <div data-reveal="up">
+          <p class="mb-5 text-paper-100/70">Vrei să alegem împreună? {site.designer.name} te ajută cu un proiect la comandă.</p>
+          <Button href={contactHref()} external={contactIsExternal()} variant="light" icon="arrow-right">Hai să vorbim</Button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Walk to the next / previous mirror -->
+  <nav class="tone-paper section-y relative bg-surface text-fg" aria-label="Alte ghiduri">
+    <div class="container-x grid grid-cols-1 gap-5 md:grid-cols-2">
+      {
+        [
+          { g: prev, dir: 'Ghidul anterior', icon: 'arrow-left' },
+          { g: next, dir: 'Următorul ghid', icon: 'arrow-right' },
+        ].map(({ g, dir, icon }) => (
+          <a
+            href={url(`/ghiduri/${g.slug}`)}
+            class="group relative flex items-center gap-6 overflow-hidden rounded-[1.5rem] border border-line p-6"
+            data-cursor-label="Intră"
+          >
+            <span class="grid h-28 w-20 shrink-0 place-items-center overflow-hidden rounded-t-full border-[5px] border-wood-400 transition-transform duration-700 ease-(--ease-out-expo) group-hover:scale-110" style={`background:${g.tint}`}>
+              <Icon name={g.icon} size={20} class="text-espresso-900/50" />
+            </span>
+            <span>
+              <span class="flex items-center gap-2 text-[0.62rem] font-semibold tracking-[0.28em] text-muted uppercase">
+                <Icon name={icon} size={13} /> {dir}
+              </span>
+              <span class="mt-2 block font-display text-3xl font-light">{g.title}</span>
+            </span>
+          </a>
+        ))
+      }
+    </div>
+  </nav>
+</BaseLayout>

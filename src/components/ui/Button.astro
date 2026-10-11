@@ -1,0 +1,72 @@
+---
+/**
+ * <Button href="#contact" variant="primary" icon="arrow-right">Text</Button>
+ * <a> when `href` is set, otherwise <button>.
+ * Variants: primary (espresso) | accent (terracotta) | outline | light
+ */
+import Icon from './Icon.astro';
+
+interface Props {
+  href?: string;
+  variant?: 'primary' | 'accent' | 'outline' | 'light';
+  size?: 'sm' | 'md' | 'lg';
+  icon?: string;
+  iconLeft?: boolean;
+  magnetic?: boolean;
+  external?: boolean;
+  class?: string;
+  [key: string]: any;
+}
+
+const {
+  href,
+  variant = 'primary',
+  size = 'md',
+  icon,
+  iconLeft = false,
+  magnetic = true,
+  external = false,
+  class: className,
+  ...rest
+} = Astro.props;
+
+const base =
+  'group/btn relative inline-flex items-center justify-center gap-3 overflow-hidden rounded-full font-medium tracking-wide whitespace-nowrap transition-[color,background-color,border-color] duration-500 ease-(--ease-out-expo) select-none';
+
+const sizes = { sm: 'h-10 px-5 text-sm', md: 'h-12 px-7 text-[0.92rem]', lg: 'h-14 px-9 text-base' };
+
+const variants = {
+  primary: 'bg-espresso-900 text-paper-50',
+  accent: 'bg-terra-500 text-paper-50',
+  outline: 'border border-current/30 text-fg hover:border-current',
+  light: 'bg-paper-50 text-espresso-900',
+};
+
+/* Liquid fill color that rises on hover */
+const fill = {
+  primary: 'bg-terra-500',
+  accent: 'bg-espresso-900',
+  outline: 'bg-fg/8',
+  light: 'bg-wood-300',
+};
+
+const Tag = href ? 'a' : 'button';
+const linkAttrs = href
+  ? { href, ...(external ? { target: '_blank', rel: 'noopener noreferrer' } : {}) }
+  : { type: 'button' as const };
+---
+
+<Tag class:list={[base, sizes[size], variants[variant], className]} data-magnetic={magnetic ? '' : undefined} {...linkAttrs} {...rest}>
+  <span
+    aria-hidden="true"
+    class:list={[
+      'absolute inset-0 translate-y-[101%] rounded-[inherit] transition-transform duration-700 ease-(--ease-out-expo) group-hover/btn:translate-y-0',
+      fill[variant],
+    ]}
+  ></span>
+  <span class="relative z-10 inline-flex items-center gap-3" data-magnetic-inner>
+    {icon && iconLeft && <Icon name={icon} size={17} />}
+    <slot />
+    {icon && !iconLeft && <Icon name={icon} size={17} class="transition-transform duration-500 ease-(--ease-out-expo) group-hover/btn:translate-x-1" />}
+  </span>
+</Tag>

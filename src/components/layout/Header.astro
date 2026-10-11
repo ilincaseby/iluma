@@ -1,0 +1,122 @@
+---
+/**
+ * HEADER — fixed top bar with the ILUMA wordmark centered on desktop.
+ * • Transparent over the hero, paper-glass after scrolling.
+ * • Hides on scroll down, returns on scroll up.
+ * • Mobile: full-screen menu with staggered links.
+ * Behaviour: src/scripts/modules/header.ts
+ */
+import { site } from '../../config/site';
+import { mainNav } from '../../config/navigation';
+import { navHref, contactHref, contactIsExternal, whatsappHref } from '../../lib/utils';
+import Logo from './Logo.astro';
+import Button from '../ui/Button.astro';
+import Icon from '../ui/Icon.astro';
+
+const half = Math.ceil(mainNav.length / 2);
+const left = mainNav.slice(0, half);
+const right = mainNav.slice(half);
+const linkCls =
+  'group relative py-2 text-[0.72rem] font-semibold tracking-[0.24em] text-espresso-900/75 uppercase transition-colors hover:text-espresso-900 data-[active]:text-terra-500';
+---
+
+<header class="site-header fixed inset-x-0 top-0 z-50 border-b border-transparent" data-header>
+  <div class="container-x grid h-20 grid-cols-[1fr_auto_1fr] items-center gap-6">
+    <nav aria-label="Navigație principală — stânga" class="hidden lg:block">
+      <ul class="flex items-center gap-8">
+        {
+          left.map((item) => (
+            <li>
+              <a href={navHref(item.href)} data-nav-link={item.href.replace('#', '')} class={linkCls}>
+                {item.label}
+                <span class="absolute inset-x-0 -bottom-0.5 h-px origin-left scale-x-0 bg-current transition-transform duration-500 ease-(--ease-out-expo) group-hover:scale-x-100" />
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+    <div class="lg:hidden"></div>
+
+    <Logo />
+
+    <div class="flex items-center justify-end gap-6">
+      <nav aria-label="Navigație principală — dreapta" class="hidden lg:block">
+        <ul class="flex items-center gap-8">
+          {
+            right.map((item) => (
+              <li>
+                <a href={navHref(item.href)} data-nav-link={item.href.replace('#', '')} class={linkCls}>
+                  {item.label}
+                  <span class="absolute inset-x-0 -bottom-0.5 h-px origin-left scale-x-0 bg-current transition-transform duration-500 ease-(--ease-out-expo) group-hover:scale-x-100" />
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </nav>
+      {
+        site.phone && (
+          <a
+            href={`tel:${site.phone.e164}`}
+            class="hidden items-center gap-2 text-[0.72rem] font-semibold tracking-[0.18em] text-espresso-900 transition-colors hover:text-terra-500 xl:inline-flex"
+          >
+            <Icon name="phone" size={14} /> {site.phone.display}
+          </a>
+        )
+      }
+      <a
+        href={site.instagram.url}
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label={`Instagram ${site.instagram.handle}`}
+        class="hidden size-10 place-items-center rounded-full border border-espresso-900/15 text-espresso-900 transition-colors hover:bg-espresso-900 hover:text-paper-50 xl:grid"
+      >
+        <Icon name="instagram" size={16} />
+      </a>
+
+      <button
+        type="button"
+        class="group relative grid size-11 place-items-center rounded-full border border-espresso-900/15 lg:hidden"
+        aria-label="Deschide meniul"
+        aria-expanded="false"
+        aria-controls="mobile-menu"
+        data-menu-toggle
+      >
+        <span class="sr-only">Meniu</span>
+        <span class="absolute h-px w-5 -translate-y-1 bg-espresso-900 transition-transform duration-500 ease-(--ease-out-expo) group-aria-expanded:translate-y-0 group-aria-expanded:rotate-45"></span>
+        <span class="absolute h-px w-5 translate-y-1 bg-espresso-900 transition-transform duration-500 ease-(--ease-out-expo) group-aria-expanded:translate-y-0 group-aria-expanded:-rotate-45"></span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<!-- Mobile full-screen menu -->
+<div
+  id="mobile-menu"
+  class="linen invisible fixed inset-0 z-40 flex flex-col overflow-y-auto bg-paper-100 pt-28 pb-10 opacity-0 transition-[opacity,visibility] duration-500 data-[open]:visible data-[open]:opacity-100 lg:hidden"
+  data-menu
+>
+  <nav aria-label="Navigație mobil" class="container-x">
+    <ul>
+      {
+        mainNav.map((item, i) => (
+          <li
+            class="translate-y-6 border-b border-espresso-900/10 opacity-0 transition-[opacity,translate] duration-700 ease-(--ease-out-expo) in-data-[open]:translate-y-0 in-data-[open]:opacity-100"
+            style={`transition-delay:${120 + i * 60}ms`}
+          >
+            <a href={navHref(item.href)} class="flex items-baseline justify-between py-4 font-display text-4xl font-light text-espresso-900" data-menu-close>
+              {item.label}
+              <span class="font-sans text-xs tracking-[0.3em] text-terra-500">0{i + 1}</span>
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+    <div class="mt-10 flex flex-col gap-3">
+      <Button href={contactHref()} external={contactIsExternal()} variant="primary" size="lg" icon="phone" iconLeft>{site.phone ? site.phone.display : 'Hai să vorbim'}</Button>
+      {whatsappHref() && <Button href={whatsappHref()!} external variant="accent" size="lg" icon="whatsapp" iconLeft>WhatsApp</Button>}
+      <Button href={site.instagram.url} external variant="outline" size="lg" icon="instagram" iconLeft>{site.instagram.handle}</Button>
+    </div>
+  </nav>
+</div>

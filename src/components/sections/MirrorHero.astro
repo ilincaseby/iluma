@@ -1,0 +1,108 @@
+---
+/**
+ * MIRROR HERO — "step into the mirror".
+ * ----------------------------------------------------------------------------
+ * A tall pinned stage (≈ 260vh). On scroll, src/scripts/modules/mirror.ts
+ * writes --p (0 → 1) on [data-mirror]:
+ *   • the arched mirror moves towards the camera (translateZ) and grows
+ *     until it fills the screen — you "walk into" the reflected room;
+ *   • the paneled wall, title and props fade away;
+ *   • a soft light flash at the end hands over to the next section.
+ * Before scrolling, the mirror tilts subtly with the cursor (--tilt-x/y).
+ * Reduced motion / no JS: shows the static composition.
+ */
+import { Image } from 'astro:assets';
+import type { SectionCopy, Tone } from '../../config/sections';
+import { img } from '../../lib/images';
+import { navHref } from '../../lib/utils';
+import SplitText from '../ui/SplitText.astro';
+import Icon from '../ui/Icon.astro';
+
+interface Props {
+  id?: string;
+  tone?: Tone;
+  copy?: SectionCopy;
+}
+const { id, tone = 'paper', copy = {} } = Astro.props;
+const reflection = img((copy.image as string | undefined) ?? 'rooms/room-living-olive.jpg');
+---
+
+<section id={id} class:list={[`tone-${tone}`, 'relative bg-surface text-fg']} data-mirror style="height: 260vh">
+  <div class="mirror-scene sticky top-0 h-dvh overflow-hidden" data-mirror-stage>
+    <!-- Paneled wall (CSS boiserie, like the doors in their photos) -->
+    <div class="mirror-wall linen absolute inset-0 bg-paper-100" aria-hidden="true">
+      <div class="absolute inset-y-[14%] left-[5%] hidden w-[22%] rounded-sm border border-espresso-900/10 shadow-[inset_0_0_0_10px_var(--color-paper-100),inset_0_0_0_11px_color-mix(in_oklab,var(--color-espresso-900)_8%,transparent)] md:block"></div>
+      <div class="absolute inset-y-[14%] right-[5%] hidden w-[22%] rounded-sm border border-espresso-900/10 shadow-[inset_0_0_0_10px_var(--color-paper-100),inset_0_0_0_11px_color-mix(in_oklab,var(--color-espresso-900)_8%,transparent)] md:block"></div>
+      <!-- Floor line + soft shadow -->
+      <div class="absolute inset-x-0 bottom-0 h-[13%] bg-gradient-to-b from-paper-200 to-paper-300"></div>
+      <div class="absolute inset-x-0 bottom-[13%] h-px bg-espresso-900/10"></div>
+      <!-- Wall sconce glow -->
+      <div class="absolute top-[22%] left-[30%] size-72 rounded-full bg-wood-300/25 blur-3xl"></div>
+      <div class="absolute top-[22%] right-[30%] size-72 rounded-full bg-wood-300/25 blur-3xl"></div>
+    </div>
+
+    <!-- Title (left on desktop, top on mobile) -->
+    <div class="mirror-fade pointer-events-none absolute inset-x-0 top-24 z-20 md:top-1/2 md:-translate-y-1/2">
+      <div class="container-x flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
+        <div class="max-w-md md:max-w-[min(30vw,24rem)]">
+          {
+            copy.eyebrow && (
+              <p class="mb-5 text-[0.65rem] font-semibold tracking-[0.34em] text-terra-500 uppercase" data-reveal="fade" data-reveal-immediate>
+                {copy.eyebrow}
+              </p>
+            )
+          }
+          <SplitText
+            as="h1"
+            text={copy.title ?? 'Iluma Studio Design'}
+            accent={copy.accent}
+            immediate
+            delay={200}
+            class="font-display text-[clamp(2.4rem,4.4vw,4.4rem)] leading-[0.98] font-light text-balance"
+          />
+        </div>
+        <p class="hidden max-w-[15rem] text-right text-sm leading-relaxed text-muted lg:block" data-reveal="up" data-reveal-immediate style="--reveal-delay:900ms">
+          De la o paletă de culori… la un spațiu care se simte ca acasă.
+        </p>
+      </div>
+    </div>
+
+    <!-- The mirror -->
+    <div class="absolute inset-0 z-10 grid place-items-center pt-64 pb-16 [perspective:1000px] md:pt-16 md:pb-16">
+      <div
+        class="mirror-arch relative h-[min(52vh,40rem)] w-[min(62vw,24rem)] overflow-hidden border-[10px] border-wood-400 bg-espresso-800 shadow-[0_40px_80px_-30px_rgba(42,32,26,.55),inset_0_0_0_1px_rgba(255,255,255,.25)] md:h-[min(74vh,44rem)] md:w-[min(32vw,26rem)]"
+        data-mirror-arch
+        data-cursor-label="Intră"
+      >
+        <div class="mirror-glass absolute inset-0">
+          <Image
+            src={reflection}
+            alt="Reflexie: un living cald, în tonuri de lemn natur și olive"
+            widths={[480, 800, 1200]}
+            sizes="(min-width: 768px) 32vw, 70vw"
+            loading="eager"
+            fetchpriority="high"
+            class="size-full object-cover"
+          />
+        </div>
+        <!-- Glass reflections -->
+        <div class="pointer-events-none absolute inset-0 bg-gradient-to-br from-white/35 via-transparent to-espresso-900/25 mix-blend-soft-light"></div>
+        <span class="sheen" aria-hidden="true"></span>
+        <!-- Inner bevel -->
+        <div class="pointer-events-none absolute inset-0 rounded-[inherit] shadow-[inset_0_0_0_3px_rgba(255,255,255,.18),inset_0_0_40px_rgba(0,0,0,.25)]"></div>
+      </div>
+    </div>
+
+    <!-- Console under the mirror (desktop) -->
+    <div class="mirror-fade pointer-events-none absolute bottom-[10%] left-1/2 z-[5] hidden h-4 w-[min(40vw,30rem)] -translate-x-1/2 rounded-full bg-espresso-900/10 blur-md md:block" aria-hidden="true"></div>
+
+    <!-- Scroll hint -->
+    <a href={navHref('#despre')} class="mirror-fade absolute bottom-6 left-1/2 z-20 flex -translate-x-1/2 flex-col items-center gap-2 text-[0.6rem] font-semibold tracking-[0.3em] text-muted uppercase" aria-label="Derulează">
+      {copy.hint ?? 'Derulează'}
+      <Icon name="chevron-down" size={16} class="animate-bounce" />
+    </a>
+
+    <!-- Light flash when you pass through the glass -->
+    <div class="mirror-flash pointer-events-none absolute inset-0 z-30 bg-paper-50" aria-hidden="true"></div>
+  </div>
+</section>

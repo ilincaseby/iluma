@@ -1,0 +1,64 @@
+---
+/**
+ * PALETTE — the 5 autumn colors as tall texture panels (accordion style):
+ * the hovered / focused panel expands and reveals its name and mood.
+ * Mobile: stacked panels. Plus the "Paletă de culori" reel as a framed video.
+ */
+import { Image } from 'astro:assets';
+import type { SectionCopy, Tone } from '../../config/sections';
+import { swatches, paletteNote } from '../../data/palette';
+import { img } from '../../lib/images';
+import Section from '../ui/Section.astro';
+import SectionHeading from '../ui/SectionHeading.astro';
+
+interface Props {
+  id?: string;
+  tone?: Tone;
+  copy?: SectionCopy;
+}
+const { id, tone = 'stone', copy = {} } = Astro.props;
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+---
+
+<Section id={id} tone={tone}>
+  <SectionHeading eyebrow={copy.eyebrow} title={copy.title ?? 'Paleta'} accent={copy.accent} intro={copy.intro} />
+
+  <div class="grid grid-cols-1 gap-8 lg:grid-cols-12">
+    <!-- Expanding texture panels -->
+    <div class="flex h-[34rem] flex-col gap-2 md:h-[36rem] md:flex-row lg:col-span-9" data-reveal="up">
+      {
+        swatches.map((s, i) => (
+          <button
+            type="button"
+            class="group relative flex-1 overflow-hidden rounded-[1.25rem] text-left transition-[flex-grow] duration-[900ms] ease-(--ease-out-expo) hover:grow-[4] focus-visible:grow-[4] data-[open]:grow-[4]"
+            style={`background:${s.hex}`}
+            data-swatch
+            data-open={i === 0 ? '' : undefined}
+            aria-label={`${s.name} — ${s.mood}`}
+          >
+            <Image src={img(s.texture)} alt="" widths={[400, 800]} sizes="(min-width:768px) 40vw, 92vw" class="absolute inset-0 size-full object-cover opacity-90 transition-transform duration-[1.4s] ease-(--ease-out-expo) group-hover:scale-110" />
+            <div class="absolute inset-0 bg-gradient-to-t from-black/55 via-black/5 to-transparent" />
+            <div class="absolute inset-x-5 bottom-4 text-paper-50 max-md:top-1/2 max-md:bottom-auto max-md:-translate-y-1/2 max-md:group-data-[open]:top-auto max-md:group-data-[open]:bottom-5 max-md:group-data-[open]:translate-y-0">
+              <p class="title-caps text-[0.9rem] whitespace-nowrap md:[writing-mode:vertical-rl] md:rotate-180 md:group-hover:[writing-mode:horizontal-tb] md:group-hover:rotate-0 md:group-data-[open]:[writing-mode:horizontal-tb] md:group-data-[open]:rotate-0">
+                {s.name}
+              </p>
+              {/* Mood line: only on the open (expanded) panel */}
+              <p class="mt-2 hidden max-w-xs font-display text-xl leading-snug italic opacity-0 transition-opacity delay-150 duration-500 group-hover:block group-hover:opacity-100 group-data-[open]:block group-data-[open]:opacity-100">
+                {s.mood}
+              </p>
+            </div>
+          </button>
+        ))
+      }
+    </div>
+
+    <!-- Reel in a phone-like frame -->
+    <figure class="relative hidden lg:col-span-3 lg:block" data-reveal="right">
+      <div class="relative mx-auto aspect-[9/16] h-[36rem] overflow-hidden rounded-[2rem] border-[6px] border-espresso-900 shadow-2xl">
+        <video class="size-full object-cover" src={`${base}/media/paleta-reel.mp4`} poster={`${base}/media/paleta-reel.webp`} muted loop playsinline preload="none" data-autoplay aria-label="Reel Iluma: de la o paletă de culori la un spațiu care se simte ca acasă"></video>
+      </div>
+    </figure>
+  </div>
+
+  <p class="mt-12 max-w-3xl text-lg leading-relaxed text-muted" data-reveal="up">{paletteNote}</p>
+</Section>

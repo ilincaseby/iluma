@@ -1,0 +1,32 @@
+---
+/**
+ * FLOATING CTA (mobile) — call + WhatsApp pill, appears after the hero.
+ * Falls back to the generic contact link when there's no phone.
+ * Toggle in src/config/site.ts → features.floatingCta.
+ */
+import { contactHref, contactIsExternal, whatsappHref } from '../../lib/utils';
+import { site } from '../../config/site';
+import Icon from '../ui/Icon.astro';
+
+const wa = whatsappHref();
+---
+
+<div
+  class="pointer-events-none fixed inset-x-4 bottom-4 z-40 flex translate-y-24 gap-2 rounded-full bg-espresso-900 p-1.5 opacity-0 shadow-2xl shadow-espresso-900/40 transition-[opacity,translate] duration-700 ease-(--ease-out-expo) data-[visible]:pointer-events-auto data-[visible]:translate-y-0 data-[visible]:opacity-100 md:hidden"
+  data-floating
+>
+  <a
+    href={contactHref()}
+    {...(contactIsExternal() ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+    class="flex h-12 flex-1 items-center justify-center gap-2 rounded-full font-medium tracking-wide text-paper-50"
+  >
+    <Icon name={site.phone ? 'phone' : 'arrow-right'} size={17} /> {site.phone ? 'Sună' : 'Hai să vorbim'}
+  </a>
+  {
+    wa && (
+      <a href={wa} target="_blank" rel="noopener noreferrer" class="flex h-12 flex-1 items-center justify-center gap-2 rounded-full bg-terra-500 font-medium tracking-wide text-paper-50">
+        <Icon name="whatsapp" size={17} /> WhatsApp
+      </a>
+    )
+  }
+</div>

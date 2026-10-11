@@ -1,0 +1,438 @@
+/* ==========================================================================
+   ILUMA STUDIO DESIGN — Global styles & design tokens (Tailwind CSS v4)
+   --------------------------------------------------------------------------
+   • Palette taken straight from the studio's own Instagram posts:
+     bej cald · verde oliv · lemn natur · tonuri de piatră · terracotta
+     · maro ciocolatiu · burgundy.
+   • Typography mirrors their carousels: a thin, widely-tracked serif for
+     titles (Cormorant) + a clean sans for body text (Manrope).
+   • Sections choose a "tone" (paper | stone | dark) in src/config/sections.ts.
+   • 3D scroll scenes (mirror portal, room fly-through, door reveal) are
+     driven by CSS variables written by src/scripts/modules/*.ts.
+   ========================================================================== */
+
+@import "tailwindcss";
+
+@import "@fontsource-variable/cormorant";
+@import "@fontsource-variable/cormorant/wght-italic.css";
+@import "@fontsource-variable/manrope";
+
+/* --------------------------------------------------------------------------
+   1. Design tokens
+   -------------------------------------------------------------------------- */
+@theme {
+  --font-display: "Cormorant Variable", "Cormorant Garamond", ui-serif, Georgia, serif;
+  --font-sans: "Manrope Variable", ui-sans-serif, system-ui, sans-serif;
+
+  /* Paper — warm off-whites (their linen / paper backgrounds) */
+  --color-paper-50: #fbf8f3;
+  --color-paper-100: #f4efe7;
+  --color-paper-200: #e9e1d5;
+  --color-paper-300: #d8ccbb;
+
+  /* Stone — "tonuri de piatră" */
+  --color-stone-400: #b9ab98;
+  --color-stone-500: #9a8b77;
+  --color-stone-600: #776a59;
+
+  /* Wood — "lemn natur" */
+  --color-wood-300: #d2a77a;
+  --color-wood-400: #b98656;
+  --color-wood-500: #9a6a3f;
+
+  /* Olive — "verde oliv" */
+  --color-olive-300: #b5c09d;
+  --color-olive-400: #8c9a6f;
+  --color-olive-500: #66734c;
+  --color-olive-600: #4b5538;
+
+  /* Terracotta — their signature orange accent */
+  --color-terra-400: #d9713a;
+  --color-terra-500: #c45e22;
+  --color-terra-600: #a24a18;
+
+  /* Espresso — "maro ciocolatiu" (dark sections, text) */
+  --color-espresso-700: #3d2e24;
+  --color-espresso-800: #2a201a;
+  --color-espresso-900: #1c1511;
+  --color-espresso-950: #120d0a;
+
+  --color-burgundy-500: #6e1f22;
+
+  /* Motion */
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out-quart: cubic-bezier(0.76, 0, 0.24, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  --animate-marquee: marquee var(--marquee-duration, 40s) linear infinite;
+  --animate-float: float 8s ease-in-out infinite;
+  --animate-spin-slow: spin 24s linear infinite;
+  --animate-sheen: sheen 6s ease-in-out infinite;
+
+  @keyframes marquee {
+    from { transform: translate3d(0, 0, 0); }
+    to { transform: translate3d(-50%, 0, 0); }
+  }
+  @keyframes float {
+    0%, 100% { transform: translate3d(0, 0, 0) rotate(-1deg); }
+    50% { transform: translate3d(0, -14px, 0) rotate(1deg); }
+  }
+  @keyframes sheen {
+    0%, 100% { transform: translateX(-120%) skewX(-18deg); }
+    50% { transform: translateX(220%) skewX(-18deg); }
+  }
+}
+
+/* Semantic colors that follow the section tone */
+@theme inline {
+  --color-surface: var(--tone-surface);
+  --color-surface-2: var(--tone-surface-2);
+  --color-card: var(--tone-card);
+  --color-fg: var(--tone-fg);
+  --color-muted: var(--tone-muted);
+  --color-line: var(--tone-line);
+  --color-accent: var(--tone-accent);
+}
+
+/* --------------------------------------------------------------------------
+   2. Base
+   -------------------------------------------------------------------------- */
+@layer base {
+  :root,
+  .tone-paper {
+    --tone-surface: var(--color-paper-100);
+    --tone-surface-2: var(--color-paper-50);
+    --tone-card: #ffffff;
+    --tone-fg: var(--color-espresso-900);
+    --tone-muted: color-mix(in oklab, var(--color-espresso-900) 64%, transparent);
+    --tone-line: color-mix(in oklab, var(--color-espresso-900) 12%, transparent);
+    --tone-accent: var(--color-terra-500);
+  }
+  .tone-stone {
+    --tone-surface: var(--color-paper-200);
+    --tone-surface-2: var(--color-paper-100);
+    --tone-card: var(--color-paper-50);
+    --tone-fg: var(--color-espresso-900);
+    --tone-muted: color-mix(in oklab, var(--color-espresso-900) 64%, transparent);
+    --tone-line: color-mix(in oklab, var(--color-espresso-900) 14%, transparent);
+    --tone-accent: var(--color-olive-600);
+  }
+  .tone-dark {
+    --tone-surface: var(--color-espresso-900);
+    --tone-surface-2: var(--color-espresso-800);
+    --tone-card: var(--color-espresso-800);
+    --tone-fg: var(--color-paper-100);
+    --tone-muted: color-mix(in oklab, var(--color-paper-100) 62%, transparent);
+    --tone-line: color-mix(in oklab, var(--color-paper-100) 12%, transparent);
+    --tone-accent: var(--color-wood-300);
+  }
+
+  html {
+    scroll-behavior: smooth;
+    scroll-padding-top: 6rem;
+    background: var(--color-paper-100);
+    -webkit-tap-highlight-color: transparent;
+  }
+  body {
+    font-family: var(--font-sans);
+    background: var(--color-paper-100);
+    color: var(--color-espresso-900);
+    -webkit-font-smoothing: antialiased;
+    overflow-x: clip;
+  }
+  ::selection {
+    background: var(--color-terra-500);
+    color: var(--color-paper-50);
+  }
+  :focus-visible {
+    outline: 2px solid var(--color-terra-500);
+    outline-offset: 3px;
+    border-radius: 6px;
+  }
+  html.is-locked {
+    overflow: hidden;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   3. Utilities
+   -------------------------------------------------------------------------- */
+@utility container-x {
+  width: 100%;
+  max-width: 82rem;
+  margin-inline: auto;
+  padding-inline: clamp(1.25rem, 4vw, 2.75rem);
+}
+
+@utility section-y {
+  padding-block: clamp(5rem, 11vw, 9.5rem);
+}
+
+/* Wide-tracked uppercase serif, like the carousel titles */
+@utility title-caps {
+  font-family: var(--font-display);
+  text-transform: uppercase;
+  letter-spacing: 0.32em;
+  font-weight: 500;
+}
+
+/* Linen texture (pure CSS) — echoes their fabric backgrounds */
+@utility linen {
+  background-image:
+    repeating-linear-gradient(0deg, color-mix(in oklab, #000 2.5%, transparent) 0 1px, transparent 1px 3px),
+    repeating-linear-gradient(90deg, color-mix(in oklab, #fff 18%, transparent) 0 1px, transparent 1px 4px);
+}
+
+/* Soft paper grain */
+@utility grain {
+  position: relative;
+  isolation: isolate;
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    opacity: 0.07;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  }
+}
+
+@utility no-scrollbar {
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+@utility mask-fade-x {
+  mask-image: linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent);
+}
+
+/* Torn paper edge (like the reel's ripped-paper caption) */
+@utility torn-top {
+  mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 10' preserveAspectRatio='none'><path d='M0 6 L4 4 L8 6.5 L12 3.5 L17 6 L21 4.2 L26 6.8 L31 3.8 L36 6.2 L41 4 L46 6.6 L51 3.6 L56 6 L61 4.4 L66 6.9 L71 3.7 L76 6.3 L81 4.1 L86 6.5 L91 3.9 L96 6.2 L100 4.5 L100 10 L0 10 Z' fill='black'/></svg>"), linear-gradient(#000, #000);
+  mask-size: 100% 22px, 100% calc(100% - 21px);
+  mask-position: top, bottom;
+  mask-repeat: no-repeat;
+}
+
+/* --------------------------------------------------------------------------
+   4. Scroll reveal (src/scripts/modules/reveal.ts)
+   -------------------------------------------------------------------------- */
+[data-reveal] {
+  opacity: 0;
+  transition:
+    opacity 1.1s var(--ease-out-expo),
+    transform 1.2s var(--ease-out-expo),
+    filter 1.2s var(--ease-out-expo);
+  transition-delay: var(--reveal-delay, 0ms);
+}
+[data-reveal="up"] { transform: translate3d(0, 44px, 0); }
+[data-reveal="left"] { transform: translate3d(-50px, 0, 0); }
+[data-reveal="right"] { transform: translate3d(50px, 0, 0); }
+[data-reveal="zoom"] { transform: scale(0.92); }
+[data-reveal="blur"] { filter: blur(12px); transform: translate3d(0, 20px, 0); }
+[data-reveal="split"] { opacity: 1; }
+/* Curtain wipe for images: a paper-colored panel slides away */
+[data-reveal="clip"] { opacity: 1; isolation: isolate; }
+[data-reveal="clip"]::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  background: var(--tone-surface);
+  transform-origin: 50% 0%;
+  transition: transform 1.4s var(--ease-in-out-quart);
+  transition-delay: var(--reveal-delay, 0ms);
+  pointer-events: none;
+}
+[data-reveal="clip"] img {
+  scale: 1.2;
+  transition: scale 1.9s var(--ease-out-expo);
+  transition-delay: var(--reveal-delay, 0ms);
+}
+[data-reveal="clip"].is-visible::after { transform: scaleY(0); }
+[data-reveal="clip"].is-visible img { scale: 1; }
+[data-reveal].is-visible {
+  opacity: 1;
+  transform: none;
+  filter: none;
+}
+
+.split-word {
+  display: inline-block;
+  overflow: hidden;
+  vertical-align: top;
+  padding-bottom: 0.14em;
+  margin-bottom: -0.14em;
+}
+.split-word > span {
+  display: inline-block;
+  transform: translate3d(0, 115%, 0) rotate(3deg);
+  transform-origin: left bottom;
+  transition: transform 1.3s var(--ease-out-expo);
+  transition-delay: calc(var(--reveal-delay, 0ms) + var(--i, 0) * 70ms);
+}
+.is-visible .split-word > span { transform: none; }
+
+.no-js [data-reveal] { opacity: 1 !important; transform: none !important; filter: none !important; }
+.no-js .split-word > span { transform: none !important; }
+.no-js [data-reveal="clip"]::after { display: none; }
+.no-js [data-reveal="clip"] img { scale: 1; }
+
+/* --------------------------------------------------------------------------
+   5. Interactive effects
+   -------------------------------------------------------------------------- */
+[data-spotlight] { --mx: 50%; --my: 50%; }
+[data-spotlight]::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: 1;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  background: radial-gradient(380px circle at var(--mx) var(--my), color-mix(in oklab, var(--color-wood-300) 22%, transparent), transparent 60%);
+}
+[data-spotlight]:hover::before { opacity: 1; }
+
+.scroll-progress {
+  transform-origin: 0 50%;
+  transform: scaleX(var(--progress, 0));
+}
+
+/* Header states (header.ts) */
+.site-header {
+  transition: transform 0.6s var(--ease-out-expo), background-color 0.4s ease, border-color 0.4s ease, color 0.4s ease;
+}
+.site-header.is-scrolled {
+  background-color: color-mix(in oklab, var(--color-paper-100) 88%, transparent);
+  backdrop-filter: blur(14px) saturate(130%);
+  -webkit-backdrop-filter: blur(14px) saturate(130%);
+  border-color: color-mix(in oklab, var(--color-espresso-900) 8%, transparent);
+}
+.site-header.is-hidden { transform: translate3d(0, -110%, 0); }
+
+.marquee:hover .marquee-track { animation-play-state: paused; }
+
+/* --------------------------------------------------------------------------
+   6. 3D scenes — each module writes a 0→1 progress in --p on its root.
+   -------------------------------------------------------------------------- */
+
+/* Mirror portal (hero): arched mirror grows until you step "through" it */
+.mirror-scene {
+  --p: 0;
+  perspective: 1200px;
+}
+.mirror-arch {
+  border-radius: 999px 999px 1.5rem 1.5rem;
+  /* Moves toward the camera: at --p≈0.92 it reaches the perspective plane
+     (1000px) and fills the screen — you pass "through" the glass. */
+  transform:
+    translate3d(0, calc(var(--p) * 6vh), calc(var(--p) * 920px))
+    rotateY(calc((var(--tilt-x, 0) * 6deg) * (1 - var(--p))))
+    rotateX(calc((var(--tilt-y, 0) * -4deg) * (1 - var(--p))));
+  will-change: transform;
+}
+.mirror-glass {
+  transform: scale(calc(1.08 + var(--p) * 0.25));
+  filter: saturate(calc(0.9 + var(--p) * 0.3));
+}
+.mirror-fade {
+  opacity: calc(1 - var(--p) * 1.6);
+  transform: translate3d(0, calc(var(--p) * -60px), 0);
+}
+.mirror-wall {
+  opacity: calc(1 - var(--p) * 0.9);
+}
+.mirror-flash {
+  opacity: clamp(0, calc((var(--p) - 0.86) * 7), 1);
+}
+
+/* Room fly-through ("walk" through rooms, then turn right) */
+.walk-scene { --p: 0; }
+.walk-stage {
+  perspective: 900px;
+  perspective-origin: 50% 50%;
+}
+.walk-world {
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+.walk-plane {
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  backface-visibility: hidden;
+  will-change: transform, opacity;
+}
+
+/* Door / wardrobe reveal */
+.doors-scene { --p: 0; perspective: 1600px; }
+.door-left {
+  transform-origin: left center;
+  transform: rotateY(calc(var(--p) * -104deg));
+}
+.door-right {
+  transform-origin: right center;
+  transform: rotateY(calc(var(--p) * 104deg));
+}
+.door-shadow { opacity: calc(var(--p) * 0.55); }
+.doors-inside {
+  transform: scale(calc(0.86 + var(--p) * 0.14));
+  filter: brightness(calc(0.55 + var(--p) * 0.45));
+}
+
+/* 3D tilt cards */
+[data-tilt] {
+  transform-style: preserve-3d;
+  transition: transform 0.7s var(--ease-out-expo);
+  will-change: transform;
+}
+[data-tilt] .tilt-pop { transform: translateZ(40px); }
+
+/* Mirror sheen strip */
+.sheen {
+  position: absolute;
+  inset: -20% auto -20% 0;
+  width: 40%;
+  background: linear-gradient(90deg, transparent, color-mix(in oklab, #fff 55%, transparent), transparent);
+  animation: var(--animate-sheen);
+  pointer-events: none;
+  mix-blend-mode: soft-light;
+}
+
+/* Smooth <details> */
+details.accordion::details-content {
+  block-size: 0;
+  overflow: hidden;
+  transition: block-size 0.55s var(--ease-out-expo), content-visibility 0.55s allow-discrete;
+}
+details.accordion[open]::details-content { block-size: auto; }
+@supports (interpolate-size: allow-keywords) {
+  :root { interpolate-size: allow-keywords; }
+}
+
+/* View-transition between pages: a soft "walk into" zoom */
+@keyframes vt-zoom-out { to { opacity: 0; transform: scale(1.08); filter: blur(6px); } }
+@keyframes vt-zoom-in { from { opacity: 0; transform: scale(0.94); } }
+::view-transition-old(root) { animation: vt-zoom-out 0.55s var(--ease-in-out-quart) both; }
+::view-transition-new(root) { animation: vt-zoom-in 0.65s var(--ease-out-expo) both; }
+
+/* --------------------------------------------------------------------------
+   7. Reduced motion — show final states, no 3D travel
+   -------------------------------------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+  [data-reveal], .split-word > span { opacity: 1 !important; transform: none !important; filter: none !important; }
+  [data-reveal="clip"]::after { display: none; }
+  [data-reveal="clip"] img { scale: 1 !important; }
+  ::view-transition-old(root), ::view-transition-new(root) { animation: none; }
+}

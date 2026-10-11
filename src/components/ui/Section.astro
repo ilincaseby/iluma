@@ -1,0 +1,23 @@
+---
+/**
+ * <Section id="servicii" tone="paper">…</Section>
+ * Wrapper for homepage sections: anchor id, color tone (paper | stone | dark
+ * — see global.css) and consistent vertical spacing.
+ */
+import type { Tone } from '../../config/sections';
+
+interface Props {
+  id?: string;
+  tone?: Tone;
+  flush?: boolean;
+  contained?: boolean;
+  class?: string;
+  label?: string;
+}
+
+const { id, tone = 'paper', flush = false, contained = true, class: className, label } = Astro.props;
+---
+
+<section id={id} aria-label={label} class:list={[`tone-${tone}`, 'relative bg-surface text-fg', !flush && 'section-y', className]}>
+  {contained ? <div class="container-x relative"><slot /></div> : <slot />}
+</section>

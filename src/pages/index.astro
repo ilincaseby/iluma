@@ -1,0 +1,20 @@
+---
+/**
+ * HOMEPAGE — renders the sections listed in src/config/sections.ts in order.
+ * Edit that file to reorder / hide / re-word sections.
+ */
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { homeSections } from '../config/sections';
+import { sectionRegistry } from '../components/sections/registry';
+
+const sections = homeSections.filter((s) => s.enabled);
+---
+
+<BaseLayout>
+  {
+    sections.map((s) => {
+      const Component = sectionRegistry[s.component];
+      return <Component id={s.id} tone={s.tone} copy={s.copy} />;
+    })
+  }
+</BaseLayout>

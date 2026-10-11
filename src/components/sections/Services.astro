@@ -1,0 +1,53 @@
+---
+/**
+ * SERVICES — 3D tilt cards (src/data/services.ts). Each card lifts its icon
+ * and number forward in Z on hover (tilt.ts + .tilt-pop).
+ */
+import type { SectionCopy, Tone } from '../../config/sections';
+import { services } from '../../data/services';
+import Section from '../ui/Section.astro';
+import SectionHeading from '../ui/SectionHeading.astro';
+import Icon from '../ui/Icon.astro';
+
+interface Props {
+  id?: string;
+  tone?: Tone;
+  copy?: SectionCopy;
+}
+const { id, tone = 'paper', copy = {} } = Astro.props;
+---
+
+<Section id={id} tone={tone}>
+  <SectionHeading eyebrow={copy.eyebrow} title={copy.title ?? 'Servicii'} accent={copy.accent} intro={copy.intro} />
+
+  <div class="grid grid-cols-1 gap-5 [perspective:1400px] sm:grid-cols-2 lg:grid-cols-3" data-stagger="80">
+    {
+      services.map((s, i) => (
+        <div data-reveal="up">
+          <article
+            class="group relative h-full overflow-hidden rounded-[1.5rem] border border-line bg-card p-8"
+            data-tilt="7"
+            data-spotlight
+          >
+            <div class="tilt-pop relative z-10 flex items-start justify-between">
+              <span class="grid size-14 place-items-center rounded-full bg-paper-200 text-espresso-900 transition-colors duration-500 group-hover:bg-terra-500 group-hover:text-paper-50">
+                <Icon name={s.icon} size={22} strokeWidth={1.4} />
+              </span>
+              <span class="font-display text-5xl font-light text-fg/10 italic">{String(i + 1).padStart(2, '0')}</span>
+            </div>
+            <h3 class="relative z-10 mt-10 font-display text-[1.9rem] leading-tight font-medium">{s.title}</h3>
+            <p class="relative z-10 mt-3 leading-relaxed text-muted">{s.text}</p>
+            <ul class="relative z-10 mt-6 space-y-2 border-t border-line pt-5">
+              {s.points.map((p) => (
+                <li class="flex items-center gap-3 text-sm">
+                  <span class="size-1 rounded-full bg-terra-500" />
+                  {p}
+                </li>
+              ))}
+            </ul>
+          </article>
+        </div>
+      ))
+    }
+  </div>
+</Section>

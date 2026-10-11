@@ -1,0 +1,104 @@
+---
+/**
+ * WALKTHROUGH — first-person 3D walk through the studio's spaces.
+ * ----------------------------------------------------------------------------
+ * A pinned stage (height grows with the number of rooms). Each room from
+ * src/data/rooms.ts is a large "window" placed deeper along the Z axis,
+ * alternating left / right. src/scripts/modules/walkthrough.ts moves the
+ * camera forward (translateZ) and turns it (rotateY) towards each room as
+ * you scroll — like walking down a corridor and looking right, then left.
+ * The room in focus shows its caption + palette.
+ * Mobile / reduced motion: a simple vertical list (no 3D).
+ */
+import { Image } from 'astro:assets';
+import type { SectionCopy, Tone } from '../../config/sections';
+import { rooms } from '../../data/rooms';
+import { img } from '../../lib/images';
+import SectionHeading from '../ui/SectionHeading.astro';
+
+interface Props {
+  id?: string;
+  tone?: Tone;
+  copy?: SectionCopy;
+}
+const { id, tone = 'dark', copy = {} } = Astro.props;
+---
+
+<section id={id} class:list={[`tone-${tone}`, 'walk-scene relative bg-surface text-fg']} data-walk style={`--rooms:${rooms.length}`}>
+  <!-- Heading (scrolls normally) -->
+  <div class="container-x section-y !pb-10">
+    <SectionHeading eyebrow={copy.eyebrow} title={copy.title ?? ''} accent={copy.accent} intro={copy.intro} class="!mb-0" />
+  </div>
+
+  <!-- 3D stage (desktop) -->
+  <div class="hidden md:block" data-walk-track style={`height:${rooms.length * 110 + 80}vh`}>
+    <div class="walk-stage sticky top-0 h-dvh overflow-hidden [perspective-origin:50%_36%]" data-walk-stage>
+      <!-- Corridor floor & ceiling lines for depth -->
+      <div class="pointer-events-none absolute inset-0" aria-hidden="true">
+        <div class="absolute inset-x-0 bottom-0 h-1/2 bg-[linear-gradient(to_top,color-mix(in_oklab,var(--color-wood-500)_22%,transparent),transparent)]"></div>
+        <div class="absolute inset-0 [background:repeating-linear-gradient(90deg,transparent_0_119px,color-mix(in_oklab,var(--color-paper-100)_4%,transparent)_119px_120px)] [mask-image:linear-gradient(to_top,#000,transparent_55%)]"></div>
+      </div>
+
+      <div class="walk-world absolute inset-x-0 top-[-14vh] bottom-[14vh]" data-walk-world>
+        {
+          rooms.map((r, i) => (
+            <figure
+              class="walk-plane h-[56vh] w-[min(66vw,60rem)] overflow-hidden rounded-[1.5rem] border border-paper-100/15 shadow-[0_50px_120px_-40px_rgba(0,0,0,.8)]"
+              data-walk-plane={i}
+              style={`--side:${i % 2 === 0 ? 1 : -1}`}
+            >
+              <Image src={img(r.image)} alt={r.title} widths={[800, 1200, 1600]} sizes="70vw" class="size-full object-cover" />
+              <div class="absolute inset-0 bg-gradient-to-t from-espresso-950/70 via-transparent to-transparent" />
+            </figure>
+          ))
+        }
+      </div>
+
+      <!-- Captions (only the active one is visible) -->
+      <div class="pointer-events-none absolute inset-x-0 bottom-8 z-10 bg-gradient-to-t from-espresso-900 via-espresso-900/85 to-transparent pt-16">
+        <div class="container-x relative h-40">
+          {
+            rooms.map((r, i) => (
+              <div class="absolute inset-x-0 bottom-0 flex items-end justify-between gap-10 opacity-0 transition-[opacity,translate] duration-700 ease-(--ease-out-expo) data-[active]:opacity-100 translate-y-4 data-[active]:translate-y-0" data-walk-caption={i}>
+                <div class="max-w-xl">
+                  <p class="mb-3 text-[0.65rem] font-semibold tracking-[0.3em] text-wood-300 uppercase">
+                    {String(i + 1).padStart(2, '0')} / {String(rooms.length).padStart(2, '0')} · {r.label}
+                  </p>
+                  <h3 class="font-display text-[clamp(1.8rem,3.4vw,3rem)] leading-[1.05] font-light text-paper-50">{r.title}</h3>
+                  <p class="mt-3 max-w-lg text-sm leading-relaxed text-paper-100/70">{r.text}</p>
+                </div>
+                <div class="flex shrink-0 gap-2">
+                  {r.palette.map((c) => <span class="size-9 rounded-full border border-paper-100/25" style={`background:${c}`} />)}
+                </div>
+              </div>
+            ))
+          }
+        </div>
+      </div>
+
+      <!-- Progress dots -->
+      <div class="absolute top-1/2 right-6 z-10 flex -translate-y-1/2 flex-col gap-3">
+        {rooms.map((_, i) => <span class="size-1.5 rounded-full bg-paper-100/25 transition-[background-color,scale] duration-500 data-[active]:scale-150 data-[active]:bg-wood-300" data-walk-dot={i} />)}
+      </div>
+    </div>
+  </div>
+
+  <!-- Mobile list -->
+  <div class="container-x space-y-10 pb-24 md:hidden" data-stagger="80">
+    {
+      rooms.map((r, i) => (
+        <figure data-reveal="up">
+          <div class="overflow-hidden rounded-[1.25rem]">
+            <Image src={img(r.image)} alt={r.title} widths={[480, 800]} sizes="92vw" class="aspect-[4/3] w-full object-cover" />
+          </div>
+          <figcaption class="mt-5">
+            <p class="mb-2 text-[0.62rem] font-semibold tracking-[0.3em] text-wood-300 uppercase">{String(i + 1).padStart(2, '0')} · {r.label}</p>
+            <h3 class="font-display text-3xl leading-tight font-light">{r.title}</h3>
+            <p class="mt-2 text-sm leading-relaxed text-muted">{r.text}</p>
+            <div class="mt-4 flex gap-2">{r.palette.map((c) => <span class="size-7 rounded-full border border-paper-100/25" style={`background:${c}`} />)}</div>
+          </figcaption>
+        </figure>
+      ))
+    }
+  </div>
+</section>

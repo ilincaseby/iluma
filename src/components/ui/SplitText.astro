@@ -1,0 +1,50 @@
+---
+/**
+ * <SplitText text="Frumusețea înseamnă confort" accent="confort" />
+ * ----------------------------------------------------------------------------
+ * Splits a headline into words that slide up one by one when revealed.
+ * • `accent`  — words (space separated) rendered in the accent italic.
+ * • `as`      — heading tag (h1/h2/h3/p…).
+ * • `immediate` — animate on page load instead of on scroll (for heroes).
+ * Pairs with the .split-word CSS in global.css and reveal.ts.
+ */
+interface Props {
+  text: string;
+  accent?: string;
+  as?: 'h1' | 'h2' | 'h3' | 'h4' | 'p' | 'span';
+  class?: string;
+  /** Extra delay before the first word (ms) */
+  delay?: number;
+  immediate?: boolean;
+}
+
+const { text, accent = '', as: Tag = 'h2', class: className, delay = 0, immediate = false } = Astro.props;
+
+/** Lowercase + strip punctuation so "casă." matches "casă" */
+const clean = (w: string) => w.toLowerCase().replace(/[.,!?;:—–"„”]/g, '');
+const accentWords = new Set(accent.split(/\s+/).map(clean).filter(Boolean));
+const words = text.split(/\s+/).filter(Boolean);
+---
+
+<Tag
+  class:list={[className]}
+  data-reveal="split"
+  data-reveal-immediate={immediate ? '' : undefined}
+  style={`--reveal-delay:${delay}ms`}
+  aria-label={text}
+>
+  {
+    words.map((word, i) => (
+      <>
+        <span class="split-word" aria-hidden="true">
+          <span
+            style={`--i:${i}`}
+            class:list={[accentWords.has(clean(word)) && 'font-display italic text-accent pr-[0.04em]']}
+          >
+            {word}
+          </span>
+        </span>{' '}
+      </>
+    ))
+  }
+</Tag>

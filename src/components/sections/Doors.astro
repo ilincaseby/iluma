@@ -1,0 +1,55 @@
+---
+/**
+ * DOORS — a wardrobe / cabinet whose two fluted-wood doors swing open in 3D
+ * as you scroll (src/scripts/modules/doors.ts writes --p on [data-doors]).
+ * Inside: the studio's palette & materials moodboard.
+ */
+import { Image } from 'astro:assets';
+import type { SectionCopy, Tone } from '../../config/sections';
+import { img } from '../../lib/images';
+import SplitText from '../ui/SplitText.astro';
+
+interface Props {
+  id?: string;
+  tone?: Tone;
+  copy?: SectionCopy;
+}
+const { id, tone = 'dark', copy = {} } = Astro.props;
+
+/* Fluted wood (CSS) — like the "lemn natur" slats in their moodboard */
+const fluted =
+  'bg-[repeating-linear-gradient(90deg,var(--color-wood-400)_0_14px,var(--color-wood-500)_14px_16px,var(--color-wood-300)_16px_18px)]';
+---
+
+<section id={id} class:list={[`tone-${tone}`, 'doors-scene relative bg-surface text-fg']} data-doors style="height: 220vh">
+  <div class="sticky top-0 flex h-dvh flex-col items-center justify-center overflow-hidden px-5">
+    <div class="mb-10 text-center">
+      {copy.eyebrow && <p class="mb-4 text-[0.65rem] font-semibold tracking-[0.34em] text-wood-300 uppercase" data-reveal="fade">{copy.eyebrow}</p>}
+      <SplitText text={copy.title ?? 'Deschide ușile'} accent={copy.accent} class="font-display text-[clamp(2.4rem,5vw,4.4rem)] leading-none font-light" />
+    </div>
+
+    <!-- Cabinet -->
+    <div class="relative aspect-[4/3] w-[min(92vw,58rem)] rounded-[1.25rem] bg-espresso-950 p-3 shadow-[0_60px_120px_-40px_rgba(0,0,0,.9)] md:p-4">
+      <!-- Inside -->
+      <div class="doors-inside relative size-full overflow-hidden rounded-[0.9rem]">
+        <Image src={img('moodboard/moodboard.jpg')} alt="Moodboard Iluma: bej cald, olive, lemn natur, tonuri de piatră" widths={[600, 1000, 1400]} sizes="(min-width: 1024px) 58rem, 92vw" class="size-full object-cover" />
+        <div class="absolute inset-0 bg-gradient-to-t from-espresso-950/80 via-transparent to-transparent"></div>
+        <p class="absolute inset-x-6 bottom-6 font-display text-[clamp(1.4rem,2.6vw,2.2rem)] leading-tight font-light text-paper-50 italic">{copy.inside}</p>
+      </div>
+      <!-- Shadow cast by the doors -->
+      <div class="door-shadow pointer-events-none absolute inset-3 rounded-[0.9rem] bg-[radial-gradient(ellipse_at_center,transparent_40%,rgba(0,0,0,.6))] md:inset-4" aria-hidden="true"></div>
+
+      <!-- Doors -->
+      <div class="pointer-events-none absolute inset-3 flex [perspective:1400px] md:inset-4" style="transform-style:preserve-3d" aria-hidden="true">
+        <div class:list={['door-left relative h-full w-1/2 rounded-l-[0.9rem] shadow-[inset_-1px_0_0_rgba(0,0,0,.35)]', fluted]}>
+          <span class="absolute top-1/2 right-5 h-24 w-1.5 -translate-y-1/2 rounded-full bg-gradient-to-b from-paper-200 to-stone-500 shadow"></span>
+          <div class="absolute inset-0 rounded-l-[inherit] bg-gradient-to-r from-black/10 to-transparent"></div>
+        </div>
+        <div class:list={['door-right relative h-full w-1/2 rounded-r-[0.9rem] shadow-[inset_1px_0_0_rgba(0,0,0,.35)]', fluted]}>
+          <span class="absolute top-1/2 left-5 h-24 w-1.5 -translate-y-1/2 rounded-full bg-gradient-to-b from-paper-200 to-stone-500 shadow"></span>
+          <div class="absolute inset-0 rounded-r-[inherit] bg-gradient-to-l from-black/10 to-transparent"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
